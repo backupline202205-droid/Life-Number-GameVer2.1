@@ -52,6 +52,18 @@ button:hover{background:#e3edff;}
   to{opacity:1;transform:translateY(0);}
 }
 
+/* 靈數圖卡專用樣式：放大並美化 */
+.number-section {
+  text-align: center;
+  margin: 20px 0;
+}
+.number-card-img {
+  width: 100%;       /* 寬度撐滿 */
+  max-width: 300px;  /* 限制最大寬度，避免過大 */
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15); /* 增加質感陰影 */
+}
+
 .end-section{
   margin-top:16px;
   background:linear-gradient(#f6d365,#fda085);
@@ -85,10 +97,9 @@ const body = document.body;
 
 let state = {};
 
-/* ====== 1. LIFF 初始化 (在此修改您的 ID) ====== */
+/* ====== 1. LIFF 初始化 ====== */
 async function main() {
     try {
-        // 這裡就是您找不到、需要手動加入的地方
         await liff.init({ liffId: "2008856861-1IuCZXrf" }); 
         if (!liff.isLoggedIn()) {
             liff.login(); 
@@ -97,7 +108,7 @@ async function main() {
         console.error("LIFF 初始化失敗", err);
     }
 }
-main(); // 啟動初始化
+main(); 
 
 /* ====== 彩虹色對照 ====== */
 const numberColors = {
@@ -125,7 +136,7 @@ const numerology = {
     9: { traits: ["包容", "完成", "同理", "放下", "智慧"], tone: "暫停，是為了新的開始。" }
 };
 
-/* ====== 動態語意 (提醒祝福內容) ====== */
+/* ====== 動態語意 ====== */
 function dynamicMessage(s, n) {
     const m1 = { 工作: "在工作與責任之中，", 家庭: "在家庭與關係裡，", 決策: "面對重要選擇時，", 自我: "回到你自己身上，" };
     const m2 = { 霧: "你其實已經感覺到迷惘，", 光: "你已經看見一條可能的路，", 夜: "你正在低調累積力量，", 風: "你渴望改變現狀，" };
@@ -188,6 +199,9 @@ function showResult() {
     const traits = numerology[n].traits.join("、"); 
     const blessing = dynamicMessage(state, n); 
 
+    // 動態組成圖卡檔名
+    const fileName = `N0${n}C.png`;
+
     app.innerHTML = `
   <div class="card" style="background:${color}">
     <h3 class="fade">你的專屬天賦數字是 ${n}</h3>
@@ -196,7 +210,7 @@ function showResult() {
   </div>
 
   <div class="number-section fade">
-   <img src="N01C.png" class="qr">
+    <img src="${fileName}" class="number-card-img" alt="天賦數字圖卡">
   </div>
 
   <div class="end-section fade">
@@ -215,7 +229,7 @@ function showResult() {
 <br>
     也期待您與我分享您的圖卡🎴<br>
 <br>
-    2025/01/08 Ver 2.1<br>
+    2025/01/11 Ver 2.2<br>
   </div>
   `;
 
@@ -223,7 +237,6 @@ function showResult() {
 }
 
 async function sendToBackstage(dob, n, traits, blessing) {
-    // 請確認這是您為「生命靈數」新建立的 GAS 網址
     const gasUrl = "https://script.google.com/macros/s/AKfycbxhdifGvk8BlPCrcZ7Ia9e7YSqWkVnwlCft03VNfJS7D7RAoL6BsBypOedPaZu9WntaOg/exec";
 
     const fullReport = `
