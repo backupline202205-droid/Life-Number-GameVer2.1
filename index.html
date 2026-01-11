@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>人生轉彎處｜天賦數字互動體驗</title>
+
+<style>
+body{
+  margin:0;
+  font-family:"Helvetica Neue", sans-serif;
+  background:#f5f6f8;
+  transition:background 0.8s;
+}
+#wrapper{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+#app{
+  width:390px;
+  background:#fff;
+  border-radius:26px;
+  padding:26px;
+  box-shadow:0 20px 50px rgba(0,0,0,.18);
+}
+h3{margin-top:0;}
+button{
+  width:100%;
+  padding:12px;
+  margin:8px 0;
+  border-radius:14px;
+  border:none;
+  font-size:16px;
+  cursor:pointer;
+  background:#f0f0f0;
+}
+button:hover{background:#e3edff;}
+.option{font-size:26px;}
+.small{font-size:13px;color:#666;}
+
+.card{
+  border-radius:22px;
+  padding:22px;
+  color:#fff;
+  box-shadow:0 15px 40px rgba(0,0,0,.25);
+  animation:fadeIn 1s ease;
+}
+.fade{animation:fadeIn 1.4s ease;}
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(10px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+.end-section{
+  margin-top:16px;
+  background:linear-gradient(#f6d365,#fda085);
+  border-radius:18px;
+  padding:16px;
+  text-align:center;
+  color:#5a3e00;
+}
+.end-section a{
+  color:#5a3e00;
+  font-weight:bold;
+  text-decoration:underline;
+}
+.qr{
+  width:120px;
+  margin:12px auto;
+}
+ul{padding-left:18px;}
+</style>
+</head>
+
+<body>
+<div id="wrapper">
+  <div id="app"></div>
+</div>
+
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+const app = document.getElementById("app");
+const body = document.body;
+
+let state = {};
+
+/* ====== 1. LIFF 初始化 (在此修改您的 ID) ====== */
+async function main() {
+    try {
+        // 這裡就是您找不到、需要手動加入的地方
+        await liff.init({ liffId: "2008856861-1IuCZXrf" }); 
+        if (!liff.isLoggedIn()) {
+            liff.login(); 
+        }
+    } catch (err) {
+        console.error("LIFF 初始化失敗", err);
+    }
+}
+main(); // 啟動初始化
+
+/* ====== 彩虹色對照 ====== */
+const numberColors = {
+    1: "linear-gradient(#ff512f,#dd2476)",
+    2: "linear-gradient(#ff9a44,#ff6a00)",
+    3: "linear-gradient(#f7971e,#ffd200)",
+    4: "linear-gradient(#56ab2f,#a8e063)",
+    5: "linear-gradient(#43cea2,#185a9d)",
+    6: "linear-gradient(#2193b0,#6dd5ed)",
+    7: "linear-gradient(#614385,#516395)",
+    8: "linear-gradient(#8e2de2,#4a00e0)",
+    9: "linear-gradient(#d66efd,#fbc2eb)"
+};
+
+/* ====== 生命靈數資料 ====== */
+const numerology = {
+    1: { traits: ["主動", "領導", "行動力", "獨立", "開創"], tone: "請相信你不是衝動，而是走在前面。" },
+    2: { traits: ["敏感", "協調", "傾聽", "支持", "連結"], tone: "你的溫柔，是世界需要的力量。" },
+    3: { traits: ["表達", "創意", "幽默", "感染力", "樂觀"], tone: "被看見的，是你真實的樣子。" },
+    4: { traits: ["穩定", "踏實", "結構", "耐心", "責任"], tone: "慢一點，你反而走得最遠。" },
+    5: { traits: ["自由", "變化", "彈性", "體驗", "行動"], tone: "改變不是逃離，而是成長。" },
+    6: { traits: ["照顧", "承擔", "關係", "責任", "愛"], tone: "請記得，你也值得被照顧。" },
+    7: { traits: ["思考", "洞察", "內省", "真實", "深度"], tone: "安靜，是你整理世界的方式。" },
+    8: { traits: ["力量", "實踐", "影響", "資源", "成就"], tone: "你有能力承載更大的局。" },
+    9: { traits: ["包容", "完成", "同理", "放下", "智慧"], tone: "暫停，是為了新的開始。" }
+};
+
+/* ====== 動態語意 (提醒祝福內容) ====== */
+function dynamicMessage(s, n) {
+    const m1 = { 工作: "在工作與責任之中，", 家庭: "在家庭與關係裡，", 決策: "面對重要選擇時，", 自我: "回到你自己身上，" };
+    const m2 = { 霧: "你其實已經感覺到迷惘，", 光: "你已經看見一條可能的路，", 夜: "你正在低調累積力量，", 風: "你渴望改變現狀，" };
+    const m3 = { 撐著不說: "但你選擇先撐住不說，", 靜下沉澱: "你讓自己慢慢沉澱，", 找人聊聊: "你願意尋求連結，", 轉移注意: "你暫時不想正面面對，" };
+    const m4 = { 穩定: "因為你需要安全感。", 突破: "因為你不想再原地打轉。", 平衡: "因為你想找回內在秩序。", 放下: "因為你真的背太多了。" };
+    return m1[s.mode] + m2[s.mood] + m3[s.coping] + m4[s.desire] + " " + numerology[n].tone;
+}
+
+/* ====== 靈數計算 ====== */
+function lifeNumber(dob) {
+    let sum = dob.replaceAll("-", "").split("").reduce((a, b) => a + Number(b), 0);
+    while (sum > 9) sum = sum.toString().split("").reduce((a, b) => a + Number(b), 0);
+    return sum;
+}
+
+/* ====== 流程起始 ====== */
+app.innerHTML = `
+<h3>如果走到人生一個轉彎處</h3>
+<p>現在最想關注哪個面向？</p>
+<button onclick="step1('工作')">🧳 工作 / 事業</button>
+<button onclick="step1('家庭')">🏠 家庭 / 關係</button>
+<button onclick="step1('決策')">🧭 重大決策</button>
+<button onclick="step1('自我')">🌱 自我狀態</button>
+`;
+
+function step1(v) { state.mode = v; app.innerHTML = `
+<h3>此刻的內在風景像哪一幅？</h3>
+<button class="option" onclick="step2('霧')">🌫️</button>
+<button class="option" onclick="step2('光')">🌅</button>
+<button class="option" onclick="step2('夜')">🌌</button>
+<button class="option" onclick="step2('風')">🌬️</button>`; }
+
+function step2(v) { state.mood = v; app.innerHTML = `
+<h3>面對這樣的狀態</h3>
+<button onclick="step3('撐著不說')">💪😑 撐著不說</button>
+<button onclick="step3('靜下沉澱')">🧘‍♀️🧘🏼‍ 靜下沉澱</button>
+<button onclick="step3('找人聊聊')">💬👥 找人聊聊</button>
+<button onclick="step3('轉移注意')">🎧🤹‍ 轉移注意</button>`; }
+
+function step3(v) { state.coping = v; app.innerHTML = `
+<h3>你更渴望哪一種？</h3>
+<button onclick="step4('穩定')">🔥 穩定</button>
+<button onclick="step4('突破')">🚀 突破</button>
+<button onclick="step4('平衡')">⚖️ 平衡</button>
+<button onclick="step4('放下')">🍃 放下</button>`; }
+
+function step4(v) { state.desire = v; app.innerHTML = `
+<h3>請輸入你的西元出生年月日</h3>
+<input id="dob" type="date" style="width:100%;padding:10px;border-radius:12px;">
+<button onclick="showResult()">🔮想看看如何前進🧭</button>`; }
+
+function showResult() {
+    const dob = document.getElementById("dob").value;
+    if (!dob) { alert("請輸入日期"); return; }
+    state.number = lifeNumber(dob);
+    const n = state.number;
+    const color = numberColors[n];
+    body.style.background = color;
+
+    const traits = numerology[n].traits.join("、"); 
+    const blessing = dynamicMessage(state, n); 
+
+    app.innerHTML = `
+  <div class="card" style="background:${color}">
+    <h3 class="fade">你的專屬天賦數字是 ${n}</h3>
+    <ul class="fade">${numerology[n].traits.map(t => `<li>${t}</li>`).join("")}</ul>
+    <p class="fade">${blessing}</p>
+  </div>
+
+  <div class="number-section fade">
+   <img src="N01C.png" class="qr">
+  </div>
+
+  <div class="end-section fade">
+    <p>期待有機會聊聊，<br>
+    點擊連結或掃描 QRCode<br>
+    即可與 Better（重義）聯絡：</p>
+    <a href="https://better885.pse.is/Line2BetterHung" target="_blank">
+      https://better885.pse.is/Line2BetterHung
+    </a>
+    <a href="https://better885.pse.is/Line2BetterHung" target="_blank">
+      <img src="BetterQRCode.jpg" class="qr">
+    </a>
+<br>
+    如果有被小小Touch到，歡迎分享給👫最好的朋友💌<br>
+<br>
+<br>
+    也期待您與我分享您的圖卡🎴<br>
+<br>
+    2025/01/08 Ver 2.1<br>
+  </div>
+  `;
+
+    sendToBackstage(dob, n, traits, blessing);
+}
+
+async function sendToBackstage(dob, n, traits, blessing) {
+    // 請確認這是您為「生命靈數」新建立的 GAS 網址
+    const gasUrl = "https://script.google.com/macros/s/AKfycbxhdifGvk8BlPCrcZ7Ia9e7YSqWkVnwlCft03VNfJS7D7RAoL6BsBypOedPaZu9WntaOg/exec";
+
+    const fullReport = `
+🌟 【天賦數字探索報告】 🌟
+---------------------------
+📅 來賓生日：${dob}
+🔢 天賦數字：${n} 號人
+✨ 特質標籤：${traits}
+---------------------------
+🧠 探索軌跡：
+1. 關注面向：${state.mode}
+2. 內在風景：${state.mood}
+3. 面對狀態：${state.coping}
+4. 渴望結果：${state.desire}
+---------------------------
+✉️ 祝福文案：
+「${blessing}」
+---------------------------
+📜 誠摯記錄於您的數位沙龍 🌿
+    `.trim();
+
+    try {
+        fetch(gasUrl, {
+            method: "POST",
+            body: JSON.stringify({ result: fullReport }),
+            mode: 'no-cors'
+        });
+    } catch (e) {
+        console.log("靜默傳送失敗");
+    }
+}
+</script>
+</body>
+</html>
