@@ -58,10 +58,13 @@ button:hover{background:#e3edff;}
   margin: 20px 0;
 }
 .number-card-img {
-  width: 100%;       /* 寬度撐滿 */
-  max-width: 300px;  /* 限制最大寬度，避免過大 */
+  width: 100%;
+  max-width: 100%; 
+  height: auto;
+  display: block;    /* 增加這行可以確保圖片不會有奇怪的下方間隙 */
+  margin: 0 auto;    /* 確保置中 */
   border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15); /* 增加質感陰影 */
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
 
 .end-section{
