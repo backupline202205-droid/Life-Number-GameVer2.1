@@ -52,7 +52,6 @@ button:hover{background:#e3edff;}
   to{opacity:1;transform:translateY(0);}
 }
 
-/* 靈數圖卡專用樣式：放大並美化 */
 .number-section {
   text-align: center;
   margin: 20px 0;
@@ -61,8 +60,8 @@ button:hover{background:#e3edff;}
   width: 100%;
   max-width: 100%; 
   height: auto;
-  display: block;    /* 增加這行可以確保圖片不會有奇怪的下方間隙 */
-  margin: 0 auto;    /* 確保置中 */
+  display: block;
+  margin: 0 auto;
   border-radius: 15px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
@@ -98,14 +97,25 @@ ul{padding-left:18px;}
 const app = document.getElementById("app");
 const body = document.body;
 
-let state = {};
+let state = {
+    userName: "未知來賓",
+    userPic: "",
+    deviceInfo: ""
+};
 
-/* ====== 1. LIFF 初始化 ====== */
+/* ====== 1. LIFF 初始化與取得個人資料 ====== */
 async function main() {
     try {
         await liff.init({ liffId: "2008856861-1IuCZXrf" }); 
         if (!liff.isLoggedIn()) {
             liff.login(); 
+        } else {
+            // 取得 Line 名稱與頭像
+            const profile = await liff.getProfile();
+            state.userName = profile.displayName;
+            state.userPic = profile.pictureUrl;
+            // 取得裝置設備資訊
+            state.deviceInfo = navigator.userAgent;
         }
     } catch (err) {
         console.error("LIFF 初始化失敗", err);
@@ -139,7 +149,6 @@ const numerology = {
     9: { traits: ["包容", "完成", "同理", "放下", "智慧"], tone: "暫停，是為了新的開始。" }
 };
 
-/* ====== 動態語意 ====== */
 function dynamicMessage(s, n) {
     const m1 = { 工作: "在工作與責任之中，", 家庭: "在家庭與關係裡，", 決策: "面對重要選擇時，", 自我: "回到你自己身上，" };
     const m2 = { 霧: "你其實已經感覺到迷惘，", 光: "你已經看見一條可能的路，", 夜: "你正在低調累積力量，", 風: "你渴望改變現狀，" };
@@ -148,7 +157,6 @@ function dynamicMessage(s, n) {
     return m1[s.mode] + m2[s.mood] + m3[s.coping] + m4[s.desire] + " " + numerology[n].tone;
 }
 
-/* ====== 靈數計算 ====== */
 function lifeNumber(dob) {
     let sum = dob.replaceAll("-", "").split("").reduce((a, b) => a + Number(b), 0);
     while (sum > 9) sum = sum.toString().split("").reduce((a, b) => a + Number(b), 0);
@@ -201,8 +209,6 @@ function showResult() {
 
     const traits = numerology[n].traits.join("、"); 
     const blessing = dynamicMessage(state, n); 
-
-    // 動態組成圖卡檔名
     const fileName = `N0${n}C.png`;
 
     app.innerHTML = `
@@ -232,7 +238,7 @@ function showResult() {
 <br>
     也期待您與我分享您的圖卡🎴<br>
 <br>
-    2025/01/11 Ver 2.2.1<br>
+    2025/01/12 Ver 2.3<br>
   </div>
   `;
 
@@ -245,6 +251,9 @@ async function sendToBackstage(dob, n, traits, blessing) {
     const fullReport = `
 🌟 【天賦數字探索報告】 🌟
 ---------------------------
+👤 來賓姓名：${state.userName}
+🖼️ 頭像網址：${state.userPic}
+📱 裝置設備：${state.deviceInfo}
 📅 來賓生日：${dob}
 🔢 天賦數字：${n} 號人
 ✨ 特質標籤：${traits}
